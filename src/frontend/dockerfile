@@ -1,0 +1,23 @@
+FROM python:3.11-alpine
+
+WORKDIR /app
+
+# Update system packages and install security updates
+RUN apk update && apk upgrade && apk add --no-cache \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user for security
+RUN adduser -D appuser && chown -R appuser:appuser /app
+USER appuser
+
+ENV PATH="/home/appuser/.local/bin:${PATH}"
+
+COPY requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["flask", "run", "--host", "0.0.0.0", "--port", "5000"]
