@@ -337,6 +337,9 @@ def update_purchase_order(db: Session, po_id: int, po_update: schemas.PurchaseOr
 def delete_purchase_order(db: Session, po_id: int):
     db_po = get_purchase_order(db, po_id)
     if db_po:
+        # Delete purchase order items first
+        for item in db_po.purchase_order_items:
+            db.delete(item)
         db.delete(db_po)
         db.commit()
     return db_po
@@ -351,14 +354,14 @@ def create_inventory_transaction(db: Session, transaction: schemas.InventoryTran
     previous_stock = inventory.current_stock
     
     # Update inventory based on transaction type
-    if transaction.transaction_type == models.TransactionType.PURCHASE:
+    if transaction.transaction_type == models.TransactionType.purchase:
         inventory.current_stock += transaction.quantity
-    elif transaction.transaction_type == models.TransactionType.SALE:
+    elif transaction.transaction_type == models.TransactionType.sale:
         inventory.current_stock -= transaction.quantity
         inventory.reserved_stock -= transaction.quantity
-    elif transaction.transaction_type == models.TransactionType.RETURN:
+    elif transaction.transaction_type == models.TransactionType.return_item:
         inventory.current_stock += transaction.quantity
-    elif transaction.transaction_type == models.TransactionType.ADJUSTMENT:
+    elif transaction.transaction_type == models.TransactionType.adjustment:
         inventory.current_stock = transaction.quantity
     
     inventory.available_stock = inventory.current_stock - inventory.reserved_stock

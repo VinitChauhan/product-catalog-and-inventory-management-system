@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 from models import UserRole, ProductStatus, OrderStatus, TransactionType
@@ -6,7 +6,7 @@ from models import UserRole, ProductStatus, OrderStatus, TransactionType
 # User Schemas
 class UserBase(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     full_name: str
     role: UserRole = UserRole.staff
 
@@ -15,7 +15,7 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     full_name: Optional[str] = None
     role: Optional[UserRole] = None
     is_active: Optional[bool] = None
