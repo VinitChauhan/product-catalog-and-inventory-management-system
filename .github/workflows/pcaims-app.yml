@@ -144,11 +144,15 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           load: true
-            
+
+      - name: Get first image tag
+        id: image_tag
+        run: echo "image_tag=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1)" >> $GITHUB_OUTPUT
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}:sha-${{ github.sha }}
+          image-ref: ${{ steps.image_tag.outputs.image_tag }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
