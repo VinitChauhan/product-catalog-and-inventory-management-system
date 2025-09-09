@@ -102,8 +102,7 @@ jobs:
       packages: write
     env:
       REGISTRY: ghcr.io
-      # IMAGE_NAME: ${{ github.repository }}
-      IMAGE_NAME: pcaims
+      IMAGE_NAME: ${{ github.repository }}
     outputs:
       image: ${{ steps.build.outputs.image }}
     steps:
