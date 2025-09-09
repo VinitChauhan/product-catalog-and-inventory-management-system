@@ -25,12 +25,12 @@ First, ensure your images are built and pushed to GitHub Container Registry:
 
 ```bash
 # Build and push frontend
-docker build -t ghcr.io/vinitchauhan/pcaims-frontend:latest ./src/frontend
-docker push ghcr.io/vinitchauhan/pcaims-frontend:latest
+docker build -t ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-frontend:latest ./src/frontend
+docker push ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-frontend:latest
 
 # Build and push backend
-docker build -t ghcr.io/vinitchauhan/pcaims-backend:latest ./src/backend
-docker push ghcr.io/vinitchauhan/pcaims-backend:latest
+docker build -t ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-backend:latest ./src/backend
+docker push ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-backend:latest
 ```
 
 ### 2. Deploy with Helm
@@ -63,12 +63,12 @@ Update the image repositories in `values.yaml`:
 ```yaml
 frontend:
   image:
-    repository: ghcr.io/vinitchauhan/pcaims-frontend
+    repository: ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-frontend
     tag: "latest"
 
 backend:
   image:
-    repository: ghcr.io/vinitchauhan/pcaims-backend
+    repository: ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-backend
     tag: "latest"
 ```
 
@@ -186,11 +186,11 @@ kubectl delete namespace pcaims
 |-----------|-------------|---------|
 | `frontend.enabled` | Enable frontend deployment | `true` |
 | `frontend.replicaCount` | Number of frontend replicas | `1` |
-| `frontend.image.repository` | Frontend image repository | `ghcr.io/vinitchauhan/pcaims-frontend` |
+| `frontend.image.repository` | Frontend image repository | `ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-frontend` |
 | `frontend.image.tag` | Frontend image tag | `latest` |
 | `backend.enabled` | Enable backend deployment | `true` |
 | `backend.replicaCount` | Number of backend replicas | `1` |
-| `backend.image.repository` | Backend image repository | `ghcr.io/vinitchauhan/pcaims-backend` |
+| `backend.image.repository` | Backend image repository | `ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-backend` |
 | `backend.image.tag` | Backend image tag | `latest` |
 | `mysql.enabled` | Enable MySQL deployment | `true` |
 | `mysql.persistence.enabled` | Enable persistent storage | `true` |
