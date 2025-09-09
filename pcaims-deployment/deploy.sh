@@ -41,6 +41,12 @@ if ! command -v helm &> /dev/null; then
     exit 1
 fi
 
+# Check for required GitHub credentials
+if [[ -z "$GITHUB_USERNAME" || -z "$GITHUB_TOKEN" ]]; then
+    log_warn "GitHub credentials not provided. Set GITHUB_USERNAME and GITHUB_TOKEN environment variables."
+    log_warn "For public repositories, you can skip this by adding --set imagePullSecrets=null to the helm command"
+fi
+
 # Create namespace if it doesn't exist
 log_info "Creating namespace '$NAMESPACE' if it doesn't exist..."
 kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
@@ -51,14 +57,30 @@ GITHUB_REPO=${GITHUB_REPOSITORY:-"vinitchauhan/product-catalog-and-inventory-man
 
 # Deploy using Helm
 log_info "Deploying PCAIMS application..."
-helm upgrade --install $RELEASE_NAME $CHART_PATH \
-    --namespace $NAMESPACE \
-    --set frontend.image.repository="ghcr.io/${GITHUB_REPO}-frontend" \
-    --set backend.image.repository="ghcr.io/${GITHUB_REPO}-backend" \
-    --set frontend.image.tag="${IMAGE_TAG:-latest}" \
-    --set backend.image.tag="${IMAGE_TAG:-latest}" \
-    --wait \
-    --timeout=10m
+if [[ -n "$GITHUB_USERNAME" && -n "$GITHUB_TOKEN" ]]; then
+    log_info "Using provided GitHub credentials for image pull secrets..."
+    helm upgrade --install $RELEASE_NAME $CHART_PATH \
+        --namespace $NAMESPACE \
+        --set frontend.image.repository="ghcr.io/${GITHUB_REPO}-frontend" \
+        --set backend.image.repository="ghcr.io/${GITHUB_REPO}-backend" \
+        --set frontend.image.tag="${IMAGE_TAG:-latest}" \
+        --set backend.image.tag="${IMAGE_TAG:-latest}" \
+        --set ghcr.username="${GITHUB_USERNAME}" \
+        --set ghcr.token="${GITHUB_TOKEN}" \
+        --wait \
+        --timeout=10m
+else
+    log_info "Deploying without image pull secrets (assuming public repositories)..."
+    helm upgrade --install $RELEASE_NAME $CHART_PATH \
+        --namespace $NAMESPACE \
+        --set frontend.image.repository="ghcr.io/${GITHUB_REPO}-frontend" \
+        --set backend.image.repository="ghcr.io/${GITHUB_REPO}-backend" \
+        --set frontend.image.tag="${IMAGE_TAG:-latest}" \
+        --set backend.image.tag="${IMAGE_TAG:-latest}" \
+        --set imagePullSecrets=null \
+        --wait \
+        --timeout=10m
+fi
 
 # Check deployment status
 log_info "Checking deployment status..."

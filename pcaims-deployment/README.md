@@ -19,7 +19,17 @@ The deployment consists of three main components:
 
 ## Quick Start
 
-### 1. Build and Push Images
+### 1. Setup GitHub Container Registry Authentication
+
+For private repositories, you'll need to authenticate with GitHub Container Registry:
+
+```bash
+# Create a GitHub Personal Access Token with packages:read permission
+# Then login to ghcr.io
+echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USERNAME --password-stdin
+```
+
+### 2. Build and Push Images
 
 First, ensure your images are built and pushed to GitHub Container Registry:
 
@@ -33,7 +43,27 @@ docker build -t ghcr.io/vinitchauhan/product-catalog-and-inventory-management-sy
 docker push ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-backend:latest
 ```
 
-### 2. Deploy with Helm
+### 3. Deploy with Helm
+
+For private repositories, set your GitHub credentials:
+
+```bash
+# Set environment variables for private repositories
+export GITHUB_USERNAME="your-github-username"
+export GITHUB_TOKEN="your-github-token"
+
+# Using the deployment script
+./deploy.sh
+
+# Or manually with Helm (private repositories)
+helm install pcaims-app . --namespace pcaims --create-namespace \
+  --set ghcr.username="$GITHUB_USERNAME" \
+  --set ghcr.token="$GITHUB_TOKEN"
+
+# For public repositories (no authentication needed)
+helm install pcaims-app . --namespace pcaims --create-namespace \
+  --set imagePullSecrets=null
+```
 
 ```bash
 # Using the deployment script
@@ -43,7 +73,7 @@ docker push ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system
 helm install pcaims-app . --namespace pcaims --create-namespace
 ```
 
-### 3. Access the Application
+### 4. Access the Application
 
 ```bash
 # Port forward to access locally
@@ -55,6 +85,33 @@ kubectl port-forward -n pcaims svc/pcaims-app-backend 8000:8000
 ```
 
 ## Configuration
+
+### GitHub Container Registry Authentication
+
+For private repositories, configure GitHub credentials in `values.yaml`:
+
+```yaml
+ghcr:
+  username: "your-github-username"
+  token: "your-github-personal-access-token"
+
+imagePullSecrets:
+  - name: ghcr-secret
+```
+
+Or set them via Helm command line:
+
+```bash
+helm install pcaims-app . \
+  --set ghcr.username="your-username" \
+  --set ghcr.token="your-token"
+```
+
+For public repositories, disable image pull secrets:
+
+```bash
+helm install pcaims-app . --set imagePullSecrets=null
+```
 
 ### Image Configuration
 
@@ -184,6 +241,9 @@ kubectl delete namespace pcaims
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `ghcr.username` | GitHub username for GHCR authentication | `""` |
+| `ghcr.token` | GitHub Personal Access Token | `""` |
+| `imagePullSecrets` | Image pull secrets for private repositories | `[{name: ghcr-secret}]` |
 | `frontend.enabled` | Enable frontend deployment | `true` |
 | `frontend.replicaCount` | Number of frontend replicas | `1` |
 | `frontend.image.repository` | Frontend image repository | `ghcr.io/vinitchauhan/product-catalog-and-inventory-management-system-frontend` |
@@ -194,5 +254,5 @@ kubectl delete namespace pcaims
 | `backend.image.tag` | Backend image tag | `latest` |
 | `mysql.enabled` | Enable MySQL deployment | `true` |
 | `mysql.persistence.enabled` | Enable persistent storage | `true` |
-| `mysql.persistence.size` | Storage size | `10Gi` |
+| `mysql.persistence.size` | Storage size | `3Gi` |
 | `ingress.enabled` | Enable ingress | `true` |

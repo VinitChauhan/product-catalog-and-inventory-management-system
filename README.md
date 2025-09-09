@@ -388,3 +388,49 @@ kubectl -n kubernetes-dashboard create token admin-user
 
 ```
 
+### ARGO CD Setup
+
+Installing Argo CD on Docker Desktop for Mac involves deploying it into the Kubernetes cluster that Docker Desktop provides. 
+Here's a step-by-step guide: 
+
+• Ensure Docker Desktop Kubernetes is Enabled: 
+	• Open Docker Desktop. 
+	• Navigate to Settings &gt; Kubernetes. 
+	• Ensure the "Enable Kubernetes" checkbox is selected. 
+
+• Install kubectl and argocd CLI: 
+	• If not already installed, install kubectl (Kubernetes command-line tool) and the Argo CD CLI using Homebrew: 
+
+        brew install kubectl
+        brew install argocd
+
+• Create Argo CD Namespace and Install Resources: 
+	• Create a dedicated namespace for Argo CD: 
+
+        kubectl create namespace argocd
+
+• Apply the official Argo CD installation manifest to deploy its components into the argocd namespace: 
+
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+• Access the Argo CD API Server: 
+	• By default, the Argo CD API server is not externally exposed. To access the UI, set up port forwarding: [1]  
+
+        kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+This command forwards local port 8080 to the Argo CD server's HTTPS port (443) within the cluster. You can now access the Argo CD UI in your browser at https://localhost:8080. [1]  
+
+• Retrieve Initial Admin Password: 
+	• The initial password for the admin user is stored in a Kubernetes secret. Retrieve it and decode it: 
+
+        kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+
+• Login to Argo CD: 
+	• Open your web browser and navigate to https://localhost:8080. 
+	• Login with the username admin and the password retrieved in the previous step. 
+	• It is recommended to change the admin password after the initial login using the Argo CD UI or CLI. 
+
+You have now successfully installed Argo CD on your local Docker Desktop Kubernetes cluster on Mac. 
+
+
+
