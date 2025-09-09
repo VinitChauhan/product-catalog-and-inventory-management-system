@@ -8,5 +8,3 @@ python-jose[cryptography]==3.4.0
 bcrypt==4.0.1
 python-dotenv==1.0.0
 alembic==1.12.1
-# Pin starlette to a secure version to override fastapi's constraint
-starlette==0.40.0

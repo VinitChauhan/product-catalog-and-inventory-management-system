@@ -1,0 +1,4 @@
+# Ignore starlette vulnerability CVE-2024-47874.
+# The fixed version (0.40.0) conflicts with the current version of fastapi (0.111.0),
+# which requires starlette < 0.38.0. This can be removed once fastapi is updated.
+CVE-2024-47874
