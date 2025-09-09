@@ -102,7 +102,8 @@ jobs:
       packages: write
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
+      # IMAGE_NAME: ${{ github.repository }}
+      IMAGE_NAME: pcaims
     outputs:
       image: ${{ steps.build.outputs.image }}
     steps:
@@ -131,9 +132,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
             type=ref,event=branch
-            latest
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build Docker Image
         uses: docker/build-push-action@v5
@@ -149,15 +150,15 @@ jobs:
         id: image_tag
         run: echo "image_tag=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1)" >> $GITHUB_OUTPUT
 
-      # - name: Run Trivy vulnerability scanner
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: ${{ steps.image_tag.outputs.image_tag }}
-      #     format: 'table'
-      #     exit-code: '1'
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'CRITICAL,HIGH'
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.image_tag.outputs.image_tag }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
       
       - name: Push Docker image
         uses: docker/build-push-action@v5
@@ -170,5 +171,5 @@ jobs:
       
       - name: Set image tag output
         id: set_output
-        run: echo "image_tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+        run: echo "image_tag=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 

@@ -1,0 +1,55 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "pcaims-deployment.fullname" . }}-test-connection"
+  labels:
+    {{- include "pcaims-deployment.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "pcaims-deployment.fullname" . }}-frontend:{{ .Values.frontend.service.port }}']
+  restartPolicy: Never
+{{- end }}
+
+{{- if .Values.backend.enabled }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "pcaims-deployment.fullname" . }}-test-backend"
+  labels:
+    {{- include "pcaims-deployment.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:latest
+      command: ['curl']
+      args: ['-f', '{{ include "pcaims-deployment.fullname" . }}-backend:{{ .Values.backend.service.port }}/health']
+  restartPolicy: Never
+{{- end }}
+
+{{- if .Values.mysql.enabled }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "pcaims-deployment.fullname" . }}-test-mysql"
+  labels:
+    {{- include "pcaims-deployment.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: mysql-client
+      image: mysql:8.0
+      command: ['mysql']
+      args: ['-h', '{{ include "pcaims-deployment.fullname" . }}-mysql', '-u', 'root', '-p{{ .Values.mysql.env.MYSQL_ROOT_PASSWORD }}', '-e', 'SELECT 1;']
+  restartPolicy: Never
+{{- end }}

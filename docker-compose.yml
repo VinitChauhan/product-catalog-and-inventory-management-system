@@ -13,14 +13,14 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./src/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./src/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     networks:
       - inventory_network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       timeout: 20s
       retries: 10
-      start_period: 30s
+      start_period: 40s
 
   # Backend Service (FastAPI)
   backend:
@@ -47,7 +47,7 @@ services:
         condition: service_healthy
     networks:
       - inventory_network
-    command: ["sh", "-c", "sleep 10 && uvicorn main:app --host 0.0.0.0 --port 8000"]
+    command: ["sh", "-c", "sleep 20 && uvicorn main:app --host 0.0.0.0 --port 8000"]
 
   # Frontend Service (Flask)
   frontend:
