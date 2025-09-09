@@ -6,16 +6,20 @@ WORKDIR /app
 RUN apk update && apk upgrade && apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
+# Upgrade pip and setuptools as root
+RUN pip install --upgrade pip setuptools
+
+# Copy requirements first for better caching
+COPY requirements.txt ./
+
 # Create non-root user for security
 RUN adduser -D appuser && chown -R appuser:appuser /app
 USER appuser
 
 ENV PATH="/home/appuser/.local/bin:${PATH}"
 
-COPY requirements.txt ./
-
-RUN pip install --upgrade pip setuptools && \
-    pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies as non-root user
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
