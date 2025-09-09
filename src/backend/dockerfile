@@ -10,7 +10,8 @@ RUN apk update && apk upgrade && apk add --no-cache \
 COPY requirements.txt ./
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Create non-root user for security
 RUN adduser -D appuser && chown -R appuser:appuser /app
