@@ -4,7 +4,9 @@ sqlalchemy==2.0.23
 pymysql==1.1.1
 pydantic==2.5.0
 email-validator==2.1.1
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.4.0
 bcrypt==4.0.1
 python-dotenv==1.0.0
 alembic==1.12.1
+# Pin starlette to a secure version to override fastapi's constraint
+starlette==0.40.0
