@@ -47,7 +47,7 @@ kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f 
 
 # Update image repositories in values.yaml based on your GitHub repository
 log_info "Updating image repositories..."
-GITHUB_REPO=${GITHUB_REPOSITORY:-"your-org/pcaims"}
+GITHUB_REPO=${GITHUB_REPOSITORY:-"vinitchauhan/product-catalog-and-inventory-management-system"}
 
 # Deploy using Helm
 log_info "Deploying PCAIMS application..."
