@@ -432,5 +432,29 @@ This command forwards local port 8080 to the Argo CD server's HTTPS port (443) w
 
 You have now successfully installed Argo CD on your local Docker Desktop Kubernetes cluster on Mac. 
 
+### Application Access 
 
+Add the domain to your hosts file
+
+echo "127.0.0.1 pcaims.local" | sudo tee -a /etc/hosts
+
+kubectl get ingress
+
+kubectl get pods
+
+Frontend access 
+
+kubectl port-forward service/pcaims-app-frontend 5000:5000
+
+
+Option 1: Direct Frontend Access (Simplest)
+URL: http://localhost:5000
+•  This directly connects to your Flask frontend
+•  Port forwarding is already running (PID 79486)
+
+Option 2: Through Ingress (Now Fixed)
+URL: http://pcaims.local:8080
+•  This uses the ingress controller we fixed
+•  Port forwarding to ingress controller is running (PID 77984)
+•  Make sure pcaims.local is in your /etc/hosts file (already added)
 
